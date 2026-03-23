@@ -1,4 +1,5 @@
 import {createHydrogenContext} from '@shopify/hydrogen';
+import {createSanityContext} from 'hydrogen-sanity';
 import {AppSession} from '~/lib/session';
 import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
 
@@ -17,11 +18,13 @@ const additionalContext = {
  * @param {Request} request
  * @param {Env} env
  * @param {ExecutionContext} executionContext
+ * @param {object} [sanityOptions] - Options for `createSanityContext` (`client`, etc.); `request`, `cache`, and `waitUntil` are set here. Omit when not using Sanity.
  */
 export async function createHydrogenRouterContext(
   request,
   env,
   executionContext,
+  sanityOptions,
 ) {
   /**
    * Open a cache instance in the worker and a custom session instance.
@@ -36,6 +39,15 @@ export async function createHydrogenRouterContext(
     AppSession.init(request, [env.SESSION_SECRET]),
   ]);
 
+  const sanity =
+    sanityOptions &&
+    (await createSanityContext({
+      request,
+      cache,
+      waitUntil,
+      ...sanityOptions,
+    }));
+
   const hydrogenContext = createHydrogenContext(
     {
       env,
@@ -49,7 +61,10 @@ export async function createHydrogenRouterContext(
         queryFragment: CART_QUERY_FRAGMENT,
       },
     },
-    additionalContext,
+    {
+      ...additionalContext,
+      ...(sanity ? {sanity} : {}),
+    },
   );
 
   return hydrogenContext;

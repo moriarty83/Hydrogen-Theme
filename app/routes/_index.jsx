@@ -3,6 +3,9 @@ import {Suspense} from 'react';
 import {Image} from '@shopify/hydrogen';
 import {ProductItem} from '~/components/ProductItem';
 import {MockShopNotice} from '~/components/MockShopNotice';
+import {Hero} from '~/components/Hero/Hero';
+import {TwoUpBanner} from '~/components/TwoUpBanner/TwoUpBanner';
+import {getHeroCarousel, getTwoUpBanner} from '~/lib/sanity';
 
 /**
  * @type {Route.MetaFunction}
@@ -20,7 +23,6 @@ export async function loader(args) {
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
-
   return {...deferredData, ...criticalData};
 }
 
@@ -30,14 +32,21 @@ export async function loader(args) {
  * @param {Route.LoaderArgs}
  */
 async function loadCriticalData({context}) {
-  const [{collections}] = await Promise.all([
+  const [shopifyData, sanityCarousel, twoUpBanner] = await Promise.all([
     context.storefront.query(FEATURED_COLLECTION_QUERY),
-    // Add other queries here, so that they are loaded in parallel
+    context.sanity
+      ? getHeroCarousel(context.sanity, 'homepage')
+      : Promise.resolve(null),
+    context.sanity
+      ? getTwoUpBanner(context.sanity, 'about-the-artist')
+      : Promise.resolve(null),
   ]);
 
   return {
     isShopLinked: Boolean(context.env.PUBLIC_STORE_DOMAIN),
-    featuredCollection: collections.nodes[0],
+    featuredCollection: shopifyData.collections.nodes[0],
+    heroCarousel: sanityCarousel, // Add it to the returned object
+    twoUpBanner,
   };
 }
 
@@ -64,8 +73,11 @@ function loadDeferredData({context}) {
 export default function Homepage() {
   /** @type {LoaderReturnData} */
   const data = useLoaderData();
+  console.log('data', data);
   return (
     <div className="home">
+      <Hero carousel={data.heroCarousel} />
+      <TwoUpBanner twoUpBanner={data.twoUpBanner} />
       {data.isShopLinked ? null : <MockShopNotice />}
       <FeaturedCollection collection={data.featuredCollection} />
       <RecommendedProducts products={data.recommendedProducts} />

@@ -1,0 +1,111 @@
+.hero {
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.hero__visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.hero-swiper {
+  --swiper-navigation-color: var(--color-light);
+  --swiper-pagination-color: var(--color-light);
+  --swiper-navigation-size: 1.75rem;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hero-swiper .swiper-button-prev,
+.hero-swiper .swiper-button-next {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 50%;
+  height: 2.75rem;
+  margin-top: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.75rem;
+}
+
+.hero-swiper .swiper-button-prev::after,
+.hero-swiper .swiper-button-next::after {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.hero-swiper .swiper-pagination {
+  bottom: 1rem !important;
+}
+
+.hero-slide {
+  min-height: min(70vh, 520px);
+  position: relative;
+}
+
+.hero-slide__media {
+  inset: 0;
+  position: absolute;
+}
+
+.hero-slide__media img {
+  border-radius: 0;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.hero-slide__overlay {
+  align-items: flex-end;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.65) 0%,
+    rgba(0, 0, 0, 0.2) 45%,
+    transparent 100%
+  );
+  display: flex;
+  inset: 0;
+  padding: 1.5rem clamp(1rem, 4vw, 3rem);
+  position: absolute;
+}
+
+.hero-slide__inner {
+  color: var(--color-light);
+  max-width: 42rem;
+}
+
+.hero-slide__title {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 0.5rem;
+}
+
+.hero-slide__copy {
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  line-height: 1.45;
+  margin: 0 0 1rem;
+  max-width: 40rem;
+}
+
+.hero-slide__cta {
+  background: var(--color-light);
+  border-radius: 4px;
+  color: var(--color-dark);
+  display: inline-block;
+  font-weight: 600;
+  padding: 0.65rem 1.25rem;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.hero-slide__cta:hover {
+  opacity: 0.92;
+}

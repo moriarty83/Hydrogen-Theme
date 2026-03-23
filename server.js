@@ -14,15 +14,29 @@ export default {
    */
   async fetch(request, env, executionContext) {
     try {
+      const sanityOptions = env.SANITY_PROJECT_ID
+        ? {
+            client: {
+              projectId: env.SANITY_PROJECT_ID,
+              dataset: env.SANITY_DATASET || 'production',
+              apiVersion: 'v2024-03-01',
+              useCdn: process.env.NODE_ENV === 'production',
+            },
+          }
+        : undefined;
+
       const hydrogenContext = await createHydrogenRouterContext(
         request,
         env,
         executionContext,
+        sanityOptions,
       );
 
       /**
        * Create a Hydrogen request handler that internally
        * delegates to React Router for routing and rendering.
+       * `getLoadContext` must return the Hydrogen router context instance — do not spread it into a
+       * plain object (middleware requires a `RouterContextProvider` instance).
        */
       const handleRequest = createRequestHandler({
         build: serverBuild,
@@ -40,11 +54,6 @@ export default {
       }
 
       if (response.status === 404) {
-        /**
-         * Check for redirects only when there's a 404 from the app.
-         * If the redirect doesn't exist, then `storefrontRedirect`
-         * will pass through the 404 response.
-         */
         return storefrontRedirect({
           request,
           response,
