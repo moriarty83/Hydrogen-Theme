@@ -1,0 +1,30 @@
+.product-specs {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+}
+
+.product-specs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-evenly;
+  margin: 0;
+  width: 100%;
+}
+
+.product-specs__item {
+  align-items: center;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 100px;
+  text-align: center;
+}
+
+.product-specs__icon {
+  filter: brightness(0) saturate(0) opacity(0.45);
+  display: block;
+  height: 72px;
+  width: auto;
+}

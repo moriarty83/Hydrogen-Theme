@@ -10,6 +10,7 @@ import {
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
+import {ProductSpecs} from '~/components/ProductSpecs/ProductSpecs';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
 /**
@@ -86,6 +87,7 @@ function loadDeferredData({context, params}) {
 export default function Product() {
   /** @type {LoaderReturnData} */
   const {product} = useLoaderData();
+  console.log('product', product);
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -115,18 +117,14 @@ export default function Product() {
           compareAtPrice={selectedVariant?.compareAtPrice}
         />
         <br />
+        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
+        <br />
+        <ProductSpecs product={product} />
+        <br />
         <ProductForm
           productOptions={productOptions}
           selectedVariant={selectedVariant}
         />
-        <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
       </div>
       <Analytics.ProductView
         data={{
@@ -220,6 +218,18 @@ const PRODUCT_FRAGMENT = `#graphql
     seo {
       description
       title
+    }
+    dimensions: metafield(namespace: "custom", key: "dimensions") {
+      type
+      value
+    }
+    support: metafield(namespace: "custom", key: "support") {
+      type
+      value
+    }
+    media: metafield(namespace: "custom", key: "media") {
+      type
+      value
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}

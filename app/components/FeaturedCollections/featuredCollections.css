@@ -1,0 +1,111 @@
+.featured-collections {
+  margin-bottom: 2rem;
+}
+
+.featured-collections__swiper {
+  --swiper-navigation-color: var(--color-light);
+  --swiper-pagination-color: var(--color-light);
+  --swiper-navigation-size: 1.5rem;
+  border-radius: 4px;
+  overflow: hidden;
+  padding-bottom: 2.25rem;
+}
+
+.featured-collections__swiper .swiper-button-prev,
+.featured-collections__swiper .swiper-button-next {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 50%;
+  height: 2.5rem;
+  margin-top: 0;
+  top: calc(50% - 1rem);
+  transform: translateY(-50%);
+  width: 2.5rem;
+}
+
+.featured-collections__swiper .swiper-button-prev::after,
+.featured-collections__swiper .swiper-button-next::after {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.featured-collections__swiper .swiper-pagination {
+  bottom: 0 !important;
+}
+
+.featured-collections__item {
+  color: inherit;
+  display: block;
+  text-decoration: none;
+}
+
+.featured-collections__image-wrap {
+  border-radius: 4px;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (min-width: 45em) {
+  .featured-collections__image-wrap {
+    aspect-ratio: 1 / 1;
+    height: auto;
+  }
+}
+
+.featured-collections__image-wrap img,
+.featured-collections__image-placeholder {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 350ms ease;
+  width: 100%;
+}
+
+.featured-collections__image-placeholder {
+  background: #e8e8e8;
+}
+
+.featured-collections__overlay {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.25) 45%,
+    transparent 100%
+  );
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+  transition: opacity 300ms ease;
+}
+
+.featured-collections__title {
+  bottom: 1rem;
+  color: var(--color-light);
+  left: 1rem;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  transform: translateY(8px);
+  transition:
+    opacity 300ms ease,
+    transform 300ms ease;
+  z-index: 2;
+}
+
+.featured-collections__item:hover .featured-collections__image-wrap img,
+.featured-collections__item:focus-visible
+  .featured-collections__image-wrap
+  img {
+  transform: scale(1.06);
+}
+
+.featured-collections__item:hover .featured-collections__overlay,
+.featured-collections__item:focus-visible .featured-collections__overlay {
+  opacity: 1;
+}
+
+.featured-collections__item:hover .featured-collections__title,
+.featured-collections__item:focus-visible .featured-collections__title {
+  opacity: 1;
+  transform: translateY(0);
+}

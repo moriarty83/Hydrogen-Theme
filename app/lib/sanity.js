@@ -33,6 +33,20 @@ export const TWO_UP_BANNER_QUERY = `
   }
 `;
 
+export const LOGO_SCROLLER_QUERY = `
+  *[_type == "logo_scroller" && slug.current == $slug][0]{
+    title,
+    heading,
+    subheading,
+    showLogoTitles,
+    "logos": logos[]{
+      _key,
+      title,
+      "imageUrl": image.asset->url
+    }
+  }
+`;
+
 /**
  * Fetch a carousel by its slug
  * @param {Object} sanity - The sanity context from the loader
@@ -63,6 +77,25 @@ export async function getTwoUpBanner(sanity, slug) {
     return (await sanity.query(TWO_UP_BANNER_QUERY, {slug})) ?? null;
   } catch (error) {
     console.error('[getTwoUpBanner]', {slug, error});
+    return null;
+  }
+}
+
+/**
+ * Fetch a logo scroller by slug
+ * @param {Object} sanity - The sanity context from the loader
+ * @param {string} slug - The slug string (e.g., 'homepage-logos')
+ * @returns {Promise<object|null>} Logo scroller document or null on query failure
+ */
+export async function getLogoScroller(sanity, slug) {
+  try {
+    if (sanity?.client?.fetch) {
+      return (await sanity.client.fetch(LOGO_SCROLLER_QUERY, {slug})) ?? null;
+    }
+
+    return (await sanity.query(LOGO_SCROLLER_QUERY, {slug})) ?? null;
+  } catch (error) {
+    console.error('[getLogoScroller]', {slug, error});
     return null;
   }
 }

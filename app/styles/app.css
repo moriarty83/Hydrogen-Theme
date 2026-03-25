@@ -227,13 +227,16 @@ button.reset:hover:not(:has(> *)) {
 */
 .header {
   align-items: center;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   height: var(--header-height);
   padding: 0 1rem;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 100;
 }
 
 .header-menu-mobile-toggle {
@@ -409,30 +412,6 @@ button.reset:hover:not(:has(> *)) {
   flex: row;
   align-items: center;
   gap: 1rem;
-}
-
-/*
-* --------------------------------------------------
-* routes/__index
-* --------------------------------------------------
-*/
-.featured-collection {
-  display: block;
-  margin-bottom: 2rem;
-  position: relative;
-}
-
-.featured-collection-image {
-  aspect-ratio: 1 / 1;
-  @media (min-width: 45em) {
-    aspect-ratio: 16 / 9;
-  }
-}
-
-.featured-collection img {
-  height: auto;
-  max-height: 100%;
-  object-fit: cover;
 }
 
 .recommended-products-grid {

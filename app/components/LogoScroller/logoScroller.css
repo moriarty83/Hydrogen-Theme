@@ -1,0 +1,74 @@
+.logo-scroller {
+  margin: 0 0 2rem;
+}
+
+.logo-scroller__title {
+  margin: 0 0 0.75rem;
+}
+
+.logo-scroller__viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.logo-scroller__track {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: max-content;
+}
+
+.logo-scroller__item {
+  align-items: center;
+  background: #fff;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  height: auto;
+  justify-content: center;
+  min-width: 9.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.logo-scroller__item img {
+  display: block;
+  height: 5.5rem;
+  max-width: 100%;
+  object-fit: contain;
+  width: auto;
+}
+
+.logo-scroller__logo-title {
+  font-size: 0.82rem;
+  line-height: 1.2;
+  margin: 0.45rem 0 0;
+  text-align: center;
+}
+
+.logo-scroller__viewport.is-scrolling .logo-scroller__track {
+  animation: logo-scroller-loop 40s linear infinite;
+}
+
+@keyframes logo-scroller-loop {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 0.5rem));
+  }
+}
+
+@media (min-width: 45em) {
+  .logo-scroller__track {
+    gap: 1.5rem;
+  }
+
+  .logo-scroller__item {
+    min-width: 12rem;
+  }
+}
+

@@ -1,4 +1,5 @@
-import {useEffect, useId, useState} from 'react';
+import {useEffect, useId, useRef, useState} from 'react';
+import {gsap} from 'gsap';
 import {Swiper, SwiperSlide} from 'swiper/react';
 import {
   A11y,
@@ -29,6 +30,7 @@ import 'swiper/css/effect-fade';
  * }}
  */
 export function Hero({carousel}) {
+  const sectionRef = useRef(null);
   const slides = carousel?.slides?.filter((s) => s?.imageUrl) ?? [];
   if (slides.length === 0) return null;
 
@@ -40,6 +42,7 @@ export function Hero({carousel}) {
 
   return (
     <section
+      ref={sectionRef}
       className="hero"
       aria-labelledby={headingId}
       aria-roledescription="carousel"
@@ -52,6 +55,12 @@ export function Hero({carousel}) {
         <HeroSlide slide={slides[0]} priority />
       ) : (
         <Swiper
+          onSwiper={(swiper) =>
+            animateActiveHeroSlide(swiper, sectionRef.current)
+          }
+          onSlideChangeTransitionStart={(swiper) =>
+            animateActiveHeroSlide(swiper, sectionRef.current)
+          }
           className="hero-swiper"
           modules={[A11y, Autoplay, EffectFade, Navigation, Pagination]}
           effect="fade"
@@ -127,4 +136,44 @@ function HeroSlide({slide, priority = false}) {
       </div>
     </div>
   );
+}
+
+/**
+ * @param {import('swiper').Swiper} swiper
+ * @param {HTMLElement | null} root
+ */
+function animateActiveHeroSlide(swiper, root) {
+  if (!swiper?.slides?.length || !root) return;
+
+  const activeSlide = swiper.slides[swiper.activeIndex];
+  if (!activeSlide) return;
+
+  const media = activeSlide.querySelector('.hero-slide__media img');
+  const textElements = activeSlide.querySelectorAll(
+    '.hero-slide__title, .hero-slide__copy, .hero-slide__cta',
+  );
+
+  if (media) {
+    gsap.killTweensOf(media);
+    gsap.fromTo(
+      media,
+      {autoAlpha: 0.35},
+      {autoAlpha: 1, duration: 0.8, ease: 'power2.out'},
+    );
+  }
+
+  if (textElements.length > 0) {
+    gsap.killTweensOf(textElements);
+    gsap.fromTo(
+      textElements,
+      {y: 24, autoAlpha: 0},
+      {
+        y: 0,
+        autoAlpha: 1,
+        duration: 0.65,
+        stagger: 0.1,
+        ease: 'power2.out',
+      },
+    );
+  }
 }

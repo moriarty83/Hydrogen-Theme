@@ -1,4 +1,11 @@
+import {useLayoutEffect, useRef} from 'react';
+import {gsap} from 'gsap';
+import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import './twoUpBanner.css';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /**
  * @param {{
@@ -15,6 +22,7 @@ import './twoUpBanner.css';
  * }} props
  */
 export function TwoUpBanner({twoUpBanner}) {
+  const rootRef = useRef(null);
   const items = (twoUpBanner?.items ?? [])
     .filter(
       (item) =>
@@ -25,10 +33,65 @@ export function TwoUpBanner({twoUpBanner}) {
         item?.copy,
     )
     .slice(0, 2);
+
+  useLayoutEffect(() => {
+    if (!rootRef.current || items.length === 0) return;
+
+    const ctx = gsap.context(() => {
+      const cards = gsap.utils.toArray('.two-up-banner__item');
+
+      cards.forEach((card) => {
+        const media = card.querySelector('img, video');
+        const textElements = card.querySelectorAll(
+          '.two-up-banner__title, .two-up-banner__subtitle, .two-up-banner__copy',
+        );
+
+        if (media) {
+          gsap.fromTo(
+            media,
+            {autoAlpha: 0},
+            {
+              autoAlpha: 1,
+              duration: 0.8,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 85%',
+                once: true,
+              },
+            },
+          );
+        }
+
+        if (textElements.length > 0) {
+          gsap.fromTo(
+            textElements,
+            {y: 24, autoAlpha: 0},
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.65,
+              stagger: 0.1,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 80%',
+                once: true,
+              },
+            },
+          );
+        }
+      });
+    }, rootRef);
+
+    return () => ctx.revert();
+  }, [items]);
+
   if (items.length === 0) return null;
 
   return (
     <section
+      ref={rootRef}
       className="two-up-banner"
       aria-label={twoUpBanner?.title || 'Promotions'}
     >

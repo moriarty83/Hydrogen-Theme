@@ -1,11 +1,13 @@
-import {Await, useLoaderData, Link} from 'react-router';
+import {Await, useLoaderData} from 'react-router';
 import {Suspense} from 'react';
-import {Image} from '@shopify/hydrogen';
+import {FeaturedCollections} from '~/components/FeaturedCollections/FeaturedCollections';
+import {LogoScroller} from '~/components/LogoScroller/LogoScroller';
 import {ProductItem} from '~/components/ProductItem';
 import {MockShopNotice} from '~/components/MockShopNotice';
 import {Hero} from '~/components/Hero/Hero';
 import {TwoUpBanner} from '~/components/TwoUpBanner/TwoUpBanner';
-import {getHeroCarousel, getTwoUpBanner} from '~/lib/sanity';
+import {getFeaturedCollections} from '~/lib/shopify';
+import {getHeroCarousel, getLogoScroller, getTwoUpBanner} from '~/lib/sanity';
 
 /**
  * @type {Route.MetaFunction}
@@ -32,21 +34,26 @@ export async function loader(args) {
  * @param {Route.LoaderArgs}
  */
 async function loadCriticalData({context}) {
-  const [shopifyData, sanityCarousel, twoUpBanner] = await Promise.all([
-    context.storefront.query(FEATURED_COLLECTION_QUERY),
-    context.sanity
-      ? getHeroCarousel(context.sanity, 'homepage')
-      : Promise.resolve(null),
-    context.sanity
-      ? getTwoUpBanner(context.sanity, 'about-the-artist')
-      : Promise.resolve(null),
-  ]);
+  const [featuredCollections, sanityCarousel, twoUpBanner, logoScroller] =
+    await Promise.all([
+      getFeaturedCollections(context.storefront),
+      context.sanity
+        ? getHeroCarousel(context.sanity, 'homepage')
+        : Promise.resolve(null),
+      context.sanity
+        ? getTwoUpBanner(context.sanity, 'about-the-artist')
+        : Promise.resolve(null),
+      context.sanity
+        ? getLogoScroller(context.sanity, 'previous-hangings')
+        : Promise.resolve(null),
+    ]);
 
   return {
     isShopLinked: Boolean(context.env.PUBLIC_STORE_DOMAIN),
-    featuredCollection: shopifyData.collections.nodes[0],
+    featuredCollections,
     heroCarousel: sanityCarousel, // Add it to the returned object
     twoUpBanner,
+    logoScroller,
   };
 }
 
@@ -78,37 +85,11 @@ export default function Homepage() {
     <div className="home">
       <Hero carousel={data.heroCarousel} />
       <TwoUpBanner twoUpBanner={data.twoUpBanner} />
+      <LogoScroller logoScroller={data.logoScroller} />
       {data.isShopLinked ? null : <MockShopNotice />}
-      <FeaturedCollection collection={data.featuredCollection} />
+      <FeaturedCollections collections={data.featuredCollections} />
       <RecommendedProducts products={data.recommendedProducts} />
     </div>
-  );
-}
-
-/**
- * @param {{
- *   collection: FeaturedCollectionFragment;
- * }}
- */
-function FeaturedCollection({collection}) {
-  if (!collection) return null;
-  const image = collection?.image;
-  return (
-    <Link
-      className="featured-collection"
-      to={`/collections/${collection.handle}`}
-    >
-      {image && (
-        <div className="featured-collection-image">
-          <Image
-            data={image}
-            sizes="100vw"
-            alt={image.altText || collection.title}
-          />
-        </div>
-      )}
-      <h1>{collection.title}</h1>
-    </Link>
   );
 }
 
@@ -141,29 +122,6 @@ function RecommendedProducts({products}) {
     </section>
   );
 }
-
-const FEATURED_COLLECTION_QUERY = `#graphql
-  fragment FeaturedCollection on Collection {
-    id
-    title
-    image {
-      id
-      url
-      altText
-      width
-      height
-    }
-    handle
-  }
-  query FeaturedCollection($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    collections(first: 1, sortKey: UPDATED_AT, reverse: true) {
-      nodes {
-        ...FeaturedCollection
-      }
-    }
-  }
-`;
 
 const RECOMMENDED_PRODUCTS_QUERY = `#graphql
   fragment RecommendedProduct on Product {
