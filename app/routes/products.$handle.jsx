@@ -11,7 +11,10 @@ import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
 import {ProductSpecs} from '~/components/ProductSpecs/ProductSpecs';
+import {Lookbook} from '~/components/Lookbook/Lookbook';
+import {ThreeUpBanner} from '~/components/ThreeUpBanner/ThreeUpBanner';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {getLookbook, getThreeUpBanner} from '~/lib/sanity';
 
 /**
  * @type {Route.MetaFunction}
@@ -52,11 +55,16 @@ async function loadCriticalData({context, params, request}) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{product}] = await Promise.all([
+  const [{product}, threeUpBanner, lookbook] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
-    // Add other queries here, so that they are loaded in parallel
+    context.sanity
+      ? getThreeUpBanner(context.sanity, 'free-shipping')
+      : Promise.resolve(null),
+    context.sanity
+      ? getLookbook(context.sanity, 'product-lookbook')
+      : Promise.resolve(null),
   ]);
 
   if (!product?.id) {
@@ -68,6 +76,13 @@ async function loadCriticalData({context, params, request}) {
 
   return {
     product,
+    threeUpBanner,
+    lookbook,
+    /** New on each request so lookbook layout picks differ per page load (SSR-safe). */
+    lookbookLayoutSeed:
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
   };
 }
 
@@ -86,9 +101,10 @@ function loadDeferredData({context, params}) {
 
 export default function Product() {
   /** @type {LoaderReturnData} */
-  const {product} = useLoaderData();
+  const {product, threeUpBanner, lookbook, lookbookLayoutSeed} =
+    useLoaderData();
   console.log('product', product);
-
+  console.log('lookbook', lookbook);
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
@@ -108,39 +124,44 @@ export default function Product() {
   const {title, descriptionHtml} = product;
 
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
-        <ProductSpecs product={product} />
-        <br />
-        <ProductForm
-          productOptions={productOptions}
-          selectedVariant={selectedVariant}
+    <div>
+      <div className="product">
+        <ProductImage image={selectedVariant?.image} />
+        <div className="product-main">
+          <h1>{title}</h1>
+          <ProductPrice
+            price={selectedVariant?.price}
+            compareAtPrice={selectedVariant?.compareAtPrice}
+          />
+          <br />
+          <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
+          <br />
+          <ProductSpecs product={product} />
+          <br />
+          <ProductForm
+            productOptions={productOptions}
+            selectedVariant={selectedVariant}
+          />
+          <br />
+        </div>
+        <Analytics.ProductView
+          data={{
+            products: [
+              {
+                id: product.id,
+                title: product.title,
+                price: selectedVariant?.price.amount || '0',
+                vendor: product.vendor,
+                variantId: selectedVariant?.id || '',
+                variantTitle: selectedVariant?.title || '',
+                quantity: 1,
+              },
+            ],
+          }}
         />
       </div>
-      <Analytics.ProductView
-        data={{
-          products: [
-            {
-              id: product.id,
-              title: product.title,
-              price: selectedVariant?.price.amount || '0',
-              vendor: product.vendor,
-              variantId: selectedVariant?.id || '',
-              variantTitle: selectedVariant?.title || '',
-              quantity: 1,
-            },
-          ],
-        }}
-      />
+      <ThreeUpBanner threeUpBanner={threeUpBanner} />
+      <Lookbook lookbook={lookbook} layoutShuffleSeed={lookbookLayoutSeed} />
     </div>
   );
 }

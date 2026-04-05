@@ -6,6 +6,35 @@
   --header-height: 64px;
   --color-dark: #000;
   --color-light: #fff;
+
+  --bg-primary: #fffcf5;
+  --bg-secondary: #fff6ec;
+  --bg-tertiary: #7f9fb7;
+  --text-primary: #191919;
+  --text-secondary: #6f8f7a;
+  --text-tertiary: #fffcf5;
+
+  --accent-primary: #d8c64a;
+  --accent-secondary: #7a4e6a;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+button {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 24px;
+  border: 2px solid var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 img {

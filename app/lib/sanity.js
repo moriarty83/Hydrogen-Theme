@@ -47,6 +47,38 @@ export const LOGO_SCROLLER_QUERY = `
   }
 `;
 
+export const THREE_UP_BANNER_QUERY = `
+  *[_type == "three_up_banner" && slug.current == $slug][0]{
+    headline,
+    subheadline,
+    cta{
+      text,
+      url
+    },
+    "sections": sections[]{
+      heading,
+      subheading,
+      "imageUrl": image.asset->url
+    }
+  }
+`;
+
+export const LOOKBOOK_QUERY = `
+  *[_type == "lookbook" && slug.current == $slug][0]{
+    title,
+    headline,
+    subheadline,
+    cta{
+      text,
+      url
+    },
+    "images": images[]{
+      alt,
+      "imageUrl": coalesce(image.asset->url, asset->url)
+    }
+  }
+`;
+
 /**
  * Fetch a carousel by its slug
  * @param {Object} sanity - The sanity context from the loader
@@ -96,6 +128,44 @@ export async function getLogoScroller(sanity, slug) {
     return (await sanity.query(LOGO_SCROLLER_QUERY, {slug})) ?? null;
   } catch (error) {
     console.error('[getLogoScroller]', {slug, error});
+    return null;
+  }
+}
+
+/**
+ * Fetch a three-up banner by slug
+ * @param {Object} sanity - The sanity context from the loader
+ * @param {string} slug - The slug string
+ * @returns {Promise<object|null>} Logo scroller document or null on query failure
+ */
+export async function getThreeUpBanner(sanity, slug) {
+  try {
+    if (sanity?.client?.fetch) {
+      return (await sanity.client.fetch(THREE_UP_BANNER_QUERY, {slug})) ?? null;
+    }
+
+    return (await sanity.query(THREE_UP_BANNER_QUERY, {slug})) ?? null;
+  } catch (error) {
+    console.error('[getThreeUpBanner]', {slug, error});
+    return null;
+  }
+}
+
+/**
+ * Fetch a lookbook document by slug
+ * @param {Object} sanity - The sanity context from the loader
+ * @param {string} slug - The slug string (e.g. 'product-lookbook')
+ * @returns {Promise<object|null>}
+ */
+export async function getLookbook(sanity, slug) {
+  try {
+    if (sanity?.client?.fetch) {
+      return (await sanity.client.fetch(LOOKBOOK_QUERY, {slug})) ?? null;
+    }
+
+    return (await sanity.query(LOOKBOOK_QUERY, {slug})) ?? null;
+  } catch (error) {
+    console.error('[getLookbook]', {slug, error});
     return null;
   }
 }

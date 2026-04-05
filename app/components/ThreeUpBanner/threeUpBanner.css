@@ -1,0 +1,134 @@
+.three-up-banner {
+  margin: 0 0 2rem;
+}
+
+.three-up-banner__header {
+  margin: 0 0 1rem;
+  text-align: center;
+}
+
+.three-up-banner__headline {
+  margin: 0 0 0.35rem;
+  text-align: center;
+}
+
+.three-up-banner__subheadline {
+  margin: 0;
+  text-align: center;
+}
+
+.three-up-banner__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 45em) {
+  .three-up-banner__sections {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+}
+
+.three-up-banner__section {
+  flex: 1 1 0;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  gap: 0.75rem;
+}
+
+.three-up-banner__section + .three-up-banner__section {
+  border-top: 1px solid rgba(0, 0, 0, 0.16);
+  padding-top: 1rem;
+}
+
+.three-up-banner__media {
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  max-width: 300px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.three-up-banner__image {
+  display: block;
+  width: auto;
+  height: auto;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin: 0 auto;
+  transition: opacity 250ms ease-in-out;
+}
+
+.three-up-banner__image--svg {
+  filter: brightness(0) saturate(0) opacity(0.45);
+}
+
+.three-up-banner__image--placeholder {
+  background: #e8e8e8;
+  height: 100%;
+}
+
+.three-up-banner__sub-overlay {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  opacity: 0;
+  padding: 1rem;
+  position: absolute;
+  transition: opacity 250ms ease;
+  background: transparent;
+}
+
+.three-up-banner__subheading {
+  color: #000;
+  margin: 0;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.three-up-banner__heading {
+  margin: 0;
+  text-align: center;
+  transition: opacity 500ms ease-in-out;
+}
+
+.three-up-banner__section:hover .three-up-banner__image,
+.three-up-banner__section:focus-within .three-up-banner__image {
+  opacity: 0;
+}
+
+.three-up-banner__section:hover .three-up-banner__sub-overlay,
+.three-up-banner__section:focus-within .three-up-banner__sub-overlay {
+  opacity: 1;
+}
+
+@media (min-width: 45em) {
+  .three-up-banner__media {
+    max-width: none;
+    width: 100%;
+  }
+
+  .three-up-banner__section + .three-up-banner__section {
+    border-top: 0;
+    border-left: 1px solid rgba(0, 0, 0, 0.16);
+    padding-top: 0;
+    padding-left: 1.5rem;
+  }
+}
+
+.three-up-banner__cta-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
