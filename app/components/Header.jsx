@@ -7,11 +7,12 @@ import {useAside} from '~/components/Aside';
  * @param {HeaderProps}
  */
 export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
-  const {shop, menu} = header;
+  const {menu} = header;
   return (
     <header className="header">
-      <NavLink prefetch="intent" to="/" style={activeLinkStyle} end>
-        <strong>{shop.name}</strong>
+      <NavLink prefetch="intent" to="/" className="header-logo" end>
+        <span className="header-logo__title text-accent">Watercolors</span>
+        <span className="header-logo__subtitle">by Kathy Greve</span>
       </NavLink>
       <HeaderMenu
         menu={menu}
@@ -45,10 +46,10 @@ export function HeaderMenu({
     <nav className={className} role="navigation">
       {viewport === 'mobile' && (
         <NavLink
+          className="header-menu-item"
           end
           onClick={close}
           prefetch="intent"
-          style={activeLinkStyle}
           to="/"
         >
           Home
@@ -71,7 +72,6 @@ export function HeaderMenu({
             key={item.id}
             onClick={close}
             prefetch="intent"
-            style={activeLinkStyle}
             to={url}
           >
             {item.title}
@@ -89,7 +89,7 @@ function HeaderCtas({isLoggedIn, cart}) {
   return (
     <nav className="header-ctas" role="navigation">
       <HeaderMenuMobileToggle />
-      <NavLink prefetch="intent" to="/account" style={activeLinkStyle}>
+      <NavLink className="header-cta-link" prefetch="intent" to="/account">
         <Suspense fallback="Sign in">
           <Await resolve={isLoggedIn} errorElement="Sign in">
             {(isLoggedIn) => (isLoggedIn ? 'Account' : 'Sign in')}
@@ -109,7 +109,7 @@ function HeaderMenuMobileToggle() {
       className="header-menu-mobile-toggle reset"
       onClick={() => open('mobile')}
     >
-      <h3>☰</h3>
+      <span aria-hidden>☰</span>
     </button>
   );
 }
@@ -117,7 +117,11 @@ function HeaderMenuMobileToggle() {
 function SearchToggle() {
   const {open} = useAside();
   return (
-    <button className="reset" onClick={() => open('search')}>
+    <button
+      className="header-cta-link reset"
+      type="button"
+      onClick={() => open('search')}
+    >
       Search
     </button>
   );
@@ -132,6 +136,7 @@ function CartBadge({count}) {
 
   return (
     <a
+      className="header-cta-link"
       href="/cart"
       onClick={(e) => {
         e.preventDefault();
@@ -209,19 +214,6 @@ const FALLBACK_HEADER_MENU = {
     },
   ],
 };
-
-/**
- * @param {{
- *   isActive: boolean;
- *   isPending: boolean;
- * }}
- */
-function activeLinkStyle({isActive, isPending}) {
-  return {
-    fontWeight: isActive ? 'bold' : undefined,
-    color: isPending ? 'grey' : 'black',
-  };
-}
 
 /** @typedef {'desktop' | 'mobile'} Viewport */
 /**

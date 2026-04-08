@@ -30,7 +30,7 @@ export default defineConfig({
     allowedHosts: [
       '.tryhydrogen.dev',
       'watercolors-by-kathy-greve.myshopify.com',
-      'd8e5-2600-4040-5411-fb00-2078-edc7-d091-959c.ngrok-free.app',
+      'fcd4-2600-4040-5411-fb00-2cb3-1b39-f1dd-eed2.ngrok-free.app',
     ],
   },
 });
