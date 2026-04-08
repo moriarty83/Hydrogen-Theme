@@ -80,7 +80,6 @@ function loadDeferredData({context}) {
 export default function Homepage() {
   /** @type {LoaderReturnData} */
   const data = useLoaderData();
-  console.log('data', data);
   return (
     <div className="home">
       <Hero carousel={data.heroCarousel} />

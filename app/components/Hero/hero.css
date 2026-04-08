@@ -16,8 +16,6 @@
 }
 
 .hero-swiper {
-  --swiper-navigation-color: var(--color-light);
-  --swiper-pagination-color: var(--color-light);
   --swiper-navigation-size: 1.75rem;
   border-radius: 4px;
   overflow: hidden;
@@ -109,3 +107,4 @@
 .hero-slide__cta:hover {
   opacity: 0.92;
 }
+

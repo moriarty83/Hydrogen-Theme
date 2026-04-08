@@ -1,0 +1,304 @@
+.collection-feature-block {
+  padding-top: 1rem;
+  margin: 0 0 2.5rem;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .collection-feature-block {
+    padding-top: 2rem;
+  }
+}
+
+.collection-feature {
+  --cf-media-height: 560px;
+  --cf-content-width: 40%;
+  position: relative;
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: var(--cf-media-height);
+}
+
+@media (max-width: 56em) {
+  .collection-feature {
+    --cf-media-height: 480px;
+  }
+}
+
+.collection-feature__media {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: #f2f2f2;
+  min-width: 0;
+  /* Full-bleed image; fade completes 25% from the right (75% from the left) */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    #000 36%,
+    rgba(0, 0, 0, 0.06) 75%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    #000 36%,
+    rgba(0, 0, 0, 0.06) 75%
+  );
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+@media (max-width: 56em) {
+  .collection-feature__media {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 36%,
+      rgba(0, 0, 0, 0.08) 75%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 36%,
+      rgba(0, 0, 0, 0.08) 75%
+    );
+  }
+}
+
+.collection-feature__media-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+
+.collection-feature__media-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.collection-feature__media img,
+.collection-feature__media picture img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.collection-feature__media-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+}
+
+.collection-feature__subheading {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.collection-feature__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+  width: var(--cf-content-width);
+  max-width: none;
+  margin-inline-start: auto;
+  margin-inline-end: 0;
+  min-height: var(--cf-media-height);
+  box-sizing: border-box;
+  padding: clamp(1.25rem, 4vw, 2rem) clamp(1rem, 3vw, 1.75rem);
+  justify-content: center;
+  align-items: stretch;
+  text-align: center;
+  overflow: hidden;
+}
+
+@media (max-width: 56em) {
+  .collection-feature__content {
+    width: 100%;
+    margin-inline-start: 0;
+    min-height: 0;
+    padding-bottom: 2rem;
+  }
+}
+
+.collection-feature__title {
+  margin: 0;
+  font-size: clamp(1.75rem, 3.2vw, 2.35rem);
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.collection-feature__title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.collection-feature__title-link:hover {
+  text-decoration: underline;
+}
+
+/*
+ * Prev/next live outside `.swiper` (siblings) so the slide viewport keeps overflow hidden;
+ * only slides are clipped — not the nav.
+ */
+.collection-feature__carousel {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.collection-feature__carousel > .swiper-button-prev {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.collection-feature__carousel > .swiper-button-next {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.collection-feature__carousel > .swiper {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.collection-feature__carousel .swiper-button-prev,
+.collection-feature__carousel .swiper-button-next {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  transform: none;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--swiper-navigation-color, var(--color-light));
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.collection-feature__swiper {
+  width: 100%;
+  min-width: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 56em) {
+  .collection-feature__carousel {
+    max-width: 100%;
+  }
+}
+
+/* Swiper hides a lone bullet by default; keep it visible for single-product collections */
+.collection-feature__swiper .swiper-pagination-bullet:only-child {
+  display: inline-block !important;
+}
+
+.collection-feature__swiper .swiper-slide {
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  padding: 0.35rem;
+  box-sizing: border-box;
+}
+
+.collection-feature__swiper .product-item {
+  display: block;
+  height: auto;
+  overflow: hidden;
+  color: var(--text-primary);
+  text-decoration: none;
+  text-align: center;
+  border-radius: 12px;
+  padding: 0.75rem 1rem 1rem;
+  background: var(--bg-secondary);
+  box-shadow:
+    0 0 0 1px rgba(25, 25, 25, 0.05),
+    0 1px 3px rgba(25, 25, 25, 0.06);
+}
+
+.collection-feature__swiper .product-item img {
+  display: block;
+  box-sizing: content-box;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0;
+  border: inset rgba(0, 0, 0, 0.18);
+  border-width: 4px;
+}
+
+@media (min-width: 56em) {
+  .collection-feature__swiper .product-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .collection-feature__product-image {
+    flex-shrink: 0;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .collection-feature__swiper
+    .product-item
+    .collection-feature__product-image
+    img {
+    max-height: calc(100% - 8px);
+  }
+}
+
+.collection-feature__loading {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.collection-feature__empty {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  font-size: 0.9rem;
+  text-align: center;
+}

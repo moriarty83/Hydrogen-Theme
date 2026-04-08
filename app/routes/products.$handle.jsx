@@ -11,10 +11,41 @@ import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
 import {ProductSpecs} from '~/components/ProductSpecs/ProductSpecs';
-import {Lookbook} from '~/components/Lookbook/Lookbook';
+import {Lookbook} from '~/components/Lookbook/Lookbook.jsx';
 import {ThreeUpBanner} from '~/components/ThreeUpBanner/ThreeUpBanner';
+import {CollectionFeature} from '~/components/CollectionFeature/CollectionFeature.jsx';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {getLookbook, getThreeUpBanner} from '~/lib/sanity';
+import {getCollectionFeatureData} from '~/lib/shopify';
+
+/**
+ * `product.primary_collection` metafield: collection reference, metaobject reference (with
+ * a `collection` field), or plain text handle.
+ * @param {import('storefrontapi.generated').ProductFragment} product
+ */
+function getPrimaryCollectionHandleFromProduct(product) {
+  const m = product?.primaryCollection ?? null;
+  if (!m) return null;
+  const ref = m.reference;
+  if (ref?.__typename === 'Collection' && typeof ref.handle === 'string') {
+    const h = ref.handle.trim();
+    return h || null;
+  }
+  if (ref?.__typename === 'Metaobject') {
+    const col = ref.collectionField?.reference;
+    if (col && typeof col.handle === 'string') {
+      const h = col.handle.trim();
+      return h || null;
+    }
+  }
+  if (typeof m.value === 'string') {
+    const v = m.value.trim();
+    if (!v) return null;
+    if (v.startsWith('gid://')) return null;
+    return v;
+  }
+  return null;
+}
 
 /**
  * @type {Route.MetaFunction}
@@ -71,13 +102,24 @@ async function loadCriticalData({context, params, request}) {
     throw new Response(null, {status: 404});
   }
 
+  // Unmodified Storefront API `product` from PRODUCT_QUERY (includes metafields you asked for).
+  console.log('[PDP loader] raw product from Storefront', product);
+
   // The API handle might be localized, so redirect to the localized handle
   redirectIfHandleIsLocalized(request, {handle, data: product});
+
+  const primaryCollectionHandle =
+    getPrimaryCollectionHandleFromProduct(product);
+  const collectionFeature = primaryCollectionHandle
+    ? await getCollectionFeatureData(storefront, primaryCollectionHandle)
+    : null;
 
   return {
     product,
     threeUpBanner,
     lookbook,
+    collectionFeature,
+    primaryCollectionHandle: primaryCollectionHandle ?? null,
     /** New on each request so lookbook layout picks differ per page load (SSR-safe). */
     lookbookLayoutSeed:
       typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -101,10 +143,15 @@ function loadDeferredData({context, params}) {
 
 export default function Product() {
   /** @type {LoaderReturnData} */
-  const {product, threeUpBanner, lookbook, lookbookLayoutSeed} =
-    useLoaderData();
-  console.log('product', product);
-  console.log('lookbook', lookbook);
+  const {
+    product,
+    threeUpBanner,
+    lookbook,
+    lookbookLayoutSeed,
+    collectionFeature,
+    primaryCollectionHandle,
+  } = useLoaderData();
+
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
@@ -161,6 +208,12 @@ export default function Product() {
         />
       </div>
       <ThreeUpBanner threeUpBanner={threeUpBanner} />
+
+      <CollectionFeature
+        subheading="More pieces from the"
+        data={collectionFeature}
+        collectionHandle={primaryCollectionHandle}
+      />
       <Lookbook lookbook={lookbook} layoutShuffleSeed={lookbookLayoutSeed} />
     </div>
   );
@@ -251,6 +304,42 @@ const PRODUCT_FRAGMENT = `#graphql
     media: metafield(namespace: "custom", key: "media") {
       type
       value
+    }
+    primaryCollection: metafield(namespace: "product", key: "primary_collection") {
+      type
+      value
+      reference {
+        __typename
+        ... on Collection {
+          handle
+          title
+          image {
+            id
+            url
+            altText
+            width
+            height
+          }
+        }
+        ... on Metaobject {
+          handle
+          collectionField: field(key: "collection") {
+            reference {
+              ... on Collection {
+                handle
+                title
+                image {
+                  id
+                  url
+                  altText
+                  width
+                  height
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}

@@ -16,6 +16,14 @@
 
   --accent-primary: #d8c64a;
   --accent-secondary: #7a4e6a;
+
+  /* Swiper: same bullet tokens as Featured Collections (swiper/css/pagination + swiper.css theme) */
+  --swiper-navigation-color: var(--color-light);
+  --swiper-navigation-size: 1.5rem;
+  --swiper-theme-color: var(--text-secondary);
+  --swiper-pagination-color: var(--text-secondary);
+  --swiper-pagination-bullet-inactive-color: var(--text-primary);
+  --swiper-pagination-bullet-inactive-opacity: 0.25;
 }
 
 body {
@@ -39,6 +47,77 @@ button {
 
 img {
   border-radius: 4px;
+}
+
+/*
+* Swiper navigation: `swiper/css/navigation` sets `pointer-events: none` on
+* `.swiper-button-disabled`. That loads after this file via component imports, so without
+* `!important` it wins and clicks pass through to slides/links underneath.
+*/
+.swiper-button-prev.swiper-button-disabled,
+.swiper-button-next.swiper-button-disabled {
+  pointer-events: auto !important;
+  cursor: not-allowed !important;
+  z-index: 20;
+}
+
+/*
+* Swiper 12+ chevrons are inline SVGs (`swiper/css/navigation` sets svg to 100%×100% of the
+* circular button). Size to half the button; parent uses flexbox to center the icon.
+*/
+.swiper-button-prev svg,
+.swiper-button-next svg,
+.swiper-nav-prev svg,
+.swiper-nav-next svg {
+  width: 50% !important;
+  height: 50% !important;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Optical centering: nudge chevron toward the tip (works with Swiper’s rotate() on prev) */
+.swiper-button-prev svg,
+.swiper-nav-prev svg {
+  margin: 0 2px 0 0;
+}
+.swiper-button-next svg,
+.swiper-nav-next svg {
+  margin: 0 0 0 2px;
+}
+
+/* Thicker chevron: add stroke on top of fill (Swiper’s default SVG is fill-only) */
+.swiper-button-prev svg path,
+.swiper-button-next svg path,
+.swiper-nav-prev svg path,
+.swiper-nav-next svg path {
+  stroke: currentColor;
+  stroke-width: 1px;
+  paint-order: stroke fill;
+  vector-effect: non-scaling-stroke;
+}
+
+.swiper:has(.swiper-pagination) {
+  padding-bottom: 2.25rem;
+}
+
+.swiper .swiper-button-prev,
+.swiper .swiper-button-next {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 50%;
+  height: 2.5rem;
+  margin-top: 0;
+  top: calc(50% - 1rem);
+  transform: translateY(-50%);
+  width: 2.5rem;
+}
+
+.swiper .swiper-pagination {
+  bottom: 0 !important;
+  z-index: 30;
 }
 
 /*
@@ -650,4 +729,10 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+:root {
+  --swiper-theme-color: var(--text-secondary);
+  --swiper-pagination-color: var(--text-secondary);
+  --swiper-pagination-bullet-inactive-color: var(--text-primary);
 }
