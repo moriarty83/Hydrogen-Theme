@@ -27,19 +27,20 @@
   .three-up-banner__sections {
     flex-direction: row;
     gap: 1.5rem;
+    align-items: flex-start;
   }
 }
 
 .three-up-banner__section {
   flex: 1 1 0;
-  aspect-ratio: 4 / 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
   position: relative;
-  gap: 0.75rem;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
 .three-up-banner__section + .three-up-banner__section {
@@ -49,19 +50,33 @@
 
 .three-up-banner__media {
   border-radius: 4px;
-  overflow: hidden;
   position: relative;
   max-width: 300px;
+  width: 100%;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.three-up-banner__image-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.three-up-banner__image-clip {
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  position: relative;
 }
 
 .three-up-banner__image {
   display: block;
-  width: auto;
   height: auto;
+  width: auto;
   width: 96px;
   height: 96px;
   object-fit: contain;
@@ -75,16 +90,19 @@
 
 .three-up-banner__image--placeholder {
   background: #e8e8e8;
-  height: 100%;
+  height: 96px;
+  width: 96px;
 }
 
 .three-up-banner__sub-overlay {
   align-items: center;
+  box-sizing: border-box;
   display: flex;
   inset: 0;
   justify-content: center;
   opacity: 0;
   padding: 1rem;
+  pointer-events: none;
   position: absolute;
   transition: opacity 250ms ease;
   background: transparent;
@@ -95,12 +113,25 @@
   margin: 0;
   line-height: 1.35;
   text-align: center;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .three-up-banner__heading {
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
   margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   text-align: center;
+  text-transform: uppercase;
   transition: opacity 500ms ease-in-out;
+  word-wrap: break-word;
 }
 
 .three-up-banner__section:hover .three-up-banner__image,

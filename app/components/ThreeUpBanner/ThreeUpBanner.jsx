@@ -88,36 +88,40 @@ export function ThreeUpBanner({threeUpBanner}) {
               key={`${section.heading ?? 'section'}-${index}`}
             >
               {section?.heading ? (
-                <h3 className="three-up-banner__heading">{section.heading}</h3>
+                <p className="three-up-banner__heading">{section.heading}</p>
               ) : null}
               <div className="three-up-banner__media">
-                {imageUrl ? (
-                  <img
-                    className={`three-up-banner__image ${
-                      typeof imageUrl === 'string' &&
-                      imageUrl.toLowerCase().includes('.svg')
-                        ? 'three-up-banner__image--svg'
-                        : ''
-                    }`}
-                    src={imageUrl}
-                    alt={section?.heading?.trim() || 'Section image'}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ) : (
-                  <div className="three-up-banner__image three-up-banner__image--placeholder" />
-                )}
-
-                {section?.subheading ? (
-                  <div
-                    className="three-up-banner__sub-overlay"
-                    aria-hidden="true"
-                  >
-                    <p className="three-up-banner__subheading">
-                      {section.subheading}
-                    </p>
+                <div className="three-up-banner__image-wrap">
+                  <div className="three-up-banner__image-clip">
+                    {imageUrl ? (
+                      <img
+                        className={`three-up-banner__image ${
+                          typeof imageUrl === 'string' &&
+                          imageUrl.toLowerCase().includes('.svg')
+                            ? 'three-up-banner__image--svg'
+                            : ''
+                        }`}
+                        src={imageUrl}
+                        alt={section?.heading?.trim() || 'Section image'}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="three-up-banner__image three-up-banner__image--placeholder" />
+                    )}
                   </div>
-                ) : null}
+
+                  {section?.subheading ? (
+                    <div
+                      className="three-up-banner__sub-overlay"
+                      aria-hidden="true"
+                    >
+                      <p className="three-up-banner__subheading">
+                        {section.subheading}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </article>
           );
