@@ -1017,6 +1017,173 @@ button.reset:hover:not(:has(> *)) {
   width: 100%;
 }
 
+.product-image__trigger {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.product-image__frame {
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.product-image__trigger:focus-visible {
+  outline: 2px solid var(--text-secondary);
+  outline-offset: 2px;
+}
+
+.product-image__frame img {
+  display: block;
+  transition:
+    transform 200ms ease,
+    filter 200ms ease;
+}
+
+.product-image__trigger:hover .product-image__frame img {
+  transform: scale(1.01);
+  filter: brightness(1.04);
+}
+
+.product-image-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.82);
+  animation: product-image-modal-fade-in 180ms ease-out both;
+}
+
+.product-image-modal.is-closing {
+  animation: product-image-modal-fade-out 220ms ease-in both;
+}
+
+.product-image-modal__panel {
+  position: relative;
+  width: min(1100px, 100%);
+  max-height: min(86vh, 860px);
+  border-radius: 12px;
+  padding: 44px 12px 22px;
+  background: rgba(15, 15, 15, 0.85);
+  box-sizing: border-box;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 12px 50px rgba(0, 0, 0, 0.45);
+  transform-origin: center;
+  animation: product-image-modal-panel-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1)
+    both;
+}
+
+.product-image-modal.is-closing .product-image-modal__panel {
+  animation: product-image-modal-panel-out 220ms cubic-bezier(0.4, 0, 1, 1)
+    both;
+}
+
+.product-image-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.product-image-modal__close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.product-image-modal__close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.product-image-modal__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+@keyframes product-image-modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes product-image-modal-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes product-image-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes product-image-modal-panel-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-image__frame img {
+    transition: none;
+  }
+
+  .product-image-modal,
+  .product-image-modal__panel {
+    animation: none;
+  }
+}
+
+@media (max-width: 47.99em) {
+  .product-image-modal__close {
+    width: 48px;
+    height: 48px;
+  }
+}
+
 .product-main {
   align-self: start;
   position: sticky;

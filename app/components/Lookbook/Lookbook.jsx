@@ -12,6 +12,8 @@ import {
 } from './lookbook.js';
 import './lookbook.css';
 
+const MODAL_CLOSE_DURATION_MS = 220;
+
 /** @typedef {Record<string, string | number>} CSSProperties */
 
 /**
@@ -239,8 +241,10 @@ export function Lookbook({lookbook, layoutShuffleSeed}) {
 
   const heading = lookbook?.headline ?? lookbook?.title ?? 'Lookbook';
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalClosing, setModalClosing] = useState(false);
   const [modalIndex, setModalIndex] = useState(0);
   const closeBtnRef = useRef(/** @type {HTMLButtonElement | null} */ (null));
+  const openerRef = useRef(/** @type {HTMLElement | null} */ (null));
 
   const imageIndexByUrl = useMemo(() => {
     /** @type {Map<string, number>} */
@@ -255,11 +259,24 @@ export function Lookbook({lookbook, layoutShuffleSeed}) {
   /** @param {string} imageUrl */
   const openModalForUrl = (imageUrl) => {
     const idx = imageIndexByUrl.get(imageUrl) ?? 0;
+    openerRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setModalIndex(idx);
+    setModalClosing(false);
     setModalOpen(true);
   };
 
-  const closeModal = () => setModalOpen(false);
+  const closeModal = () => setModalClosing(true);
+
+  useEffect(() => {
+    if (!modalClosing) return;
+    const t = window.setTimeout(() => {
+      setModalOpen(false);
+      setModalClosing(false);
+      openerRef.current?.focus();
+    }, MODAL_CLOSE_DURATION_MS);
+    return () => window.clearTimeout(t);
+  }, [modalClosing]);
 
   useEffect(() => {
     if (!modalOpen) return;
@@ -342,7 +359,9 @@ export function Lookbook({lookbook, layoutShuffleSeed}) {
 
       {modalOpen ? (
         <div
-          className="lookbook-modal"
+          className={['lookbook-modal', modalClosing ? 'is-closing' : '']
+            .filter(Boolean)
+            .join(' ')}
           role="dialog"
           aria-modal="true"
           aria-label={`${heading} image viewer`}
