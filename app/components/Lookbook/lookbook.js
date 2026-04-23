@@ -10,7 +10,6 @@ export const LOOKBOOK_TILE_SHAPES = [
   {id: '1x1', rowSpan: 1, colSpan: 1},
   {id: '1x2', rowSpan: 1, colSpan: 2},
   {id: '1x3', rowSpan: 1, colSpan: 3},
-  {id: '2x1', rowSpan: 2, colSpan: 1},
   {id: '2x2', rowSpan: 2, colSpan: 2},
   {id: '2x3', rowSpan: 2, colSpan: 3},
 ];
@@ -105,21 +104,13 @@ function shuffle(array, rng) {
 function placeNextRandomTile(occupied, rng, maxRandomAttempts) {
   for (let attempt = 0; attempt < maxRandomAttempts; attempt++) {
     const shape = pickRandomShape(LOOKBOOK_TILE_SHAPES, rng);
-    const origin = firstAvailableOrigin(
-      occupied,
-      shape.rowSpan,
-      shape.colSpan,
-    );
+    const origin = firstAvailableOrigin(occupied, shape.rowSpan, shape.colSpan);
     if (origin) return {shape, row: origin.row, col: origin.col};
   }
 
   const order = shuffle(LOOKBOOK_TILE_SHAPES, rng);
   for (const shape of order) {
-    const origin = firstAvailableOrigin(
-      occupied,
-      shape.rowSpan,
-      shape.colSpan,
-    );
+    const origin = firstAvailableOrigin(occupied, shape.rowSpan, shape.colSpan);
     if (origin) return {shape, row: origin.row, col: origin.col};
   }
 
@@ -169,7 +160,13 @@ export function buildLookbookRandomGrid(images, options = {}) {
     );
     if (!placed) break;
 
-    occupy(occupied, placed.row, placed.col, placed.shape.rowSpan, placed.shape.colSpan);
+    occupy(
+      occupied,
+      placed.row,
+      placed.col,
+      placed.shape.rowSpan,
+      placed.shape.colSpan,
+    );
     placements.push({
       image,
       shape: placed.shape,

@@ -1,6 +1,7 @@
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {Link} from 'react-router';
 import {Swiper, SwiperSlide} from 'swiper/react';
-import {Navigation, Pagination} from 'swiper/modules';
+import {A11y, Keyboard, Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -79,6 +80,31 @@ function mulberry32(seed) {
 const SOLO_CELL_STYLE = {gridColumn: '1 / 5', gridRow: '1 / 2'};
 
 /**
+ * @param {{
+ *   image: ({imageUrl?: string, alt?: string} | null)
+ *   heading: string
+ *   eager: boolean
+ *   onOpen: (imageUrl: string) => void
+ * }} props
+ */
+function LookbookClickableCell({image, heading, eager, onOpen}) {
+  if (!image?.imageUrl) {
+    return <div className="lookbook-slide__cell-placeholder" />;
+  }
+
+  return (
+    <button
+      type="button"
+      className="lookbook-slide__cellButton"
+      onClick={() => onOpen(image.imageUrl)}
+      aria-label="Open image"
+    >
+      <LookbookImg image={image} heading={heading} eager={eager} />
+    </button>
+  );
+}
+
+/**
  * @param {string} heading
  * @param {import('./lookbook.js').LookbookCarouselSlide} slide
  */
@@ -115,10 +141,15 @@ function lookbookSlideKey(heading, slide) {
  * @param {string} heading
  * @param {boolean} eagerTop
  */
-function renderSoloSlide(image, heading, eagerTop) {
+function renderSoloSlide(image, heading, eagerTop, onOpen) {
   return (
     <div className="lookbook-slide__cell" style={SOLO_CELL_STYLE}>
-      <LookbookImg image={image} heading={heading} eager={eagerTop} />
+      <LookbookClickableCell
+        image={image}
+        heading={heading}
+        eager={eagerTop}
+        onOpen={onOpen}
+      />
     </div>
   );
 }
@@ -128,7 +159,7 @@ function renderSoloSlide(image, heading, eagerTop) {
  * @param {string} heading
  * @param {boolean} eagerTop
  */
-function renderGridSlide(slide, heading, eagerTop) {
+function renderGridSlide(slide, heading, eagerTop, onOpen) {
   const {placements, occupied} = slide;
   const nodes = [];
   let key = 0;
@@ -153,7 +184,12 @@ function renderGridSlide(slide, heading, eagerTop) {
 
     nodes.push(
       <div key={`c-${key++}`} className="lookbook-slide__cell" style={style}>
-        <LookbookImg image={image} heading={heading} eager={nextEager()} />
+        <LookbookClickableCell
+          image={image}
+          heading={heading}
+          eager={nextEager()}
+          onOpen={onOpen}
+        />
       </div>,
     );
   }
@@ -202,6 +238,47 @@ export function Lookbook({lookbook, layoutShuffleSeed}) {
   if (!images.length) return null;
 
   const heading = lookbook?.headline ?? lookbook?.title ?? 'Lookbook';
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalIndex, setModalIndex] = useState(0);
+  const closeBtnRef = useRef(/** @type {HTMLButtonElement | null} */ (null));
+
+  const imageIndexByUrl = useMemo(() => {
+    /** @type {Map<string, number>} */
+    const m = new Map();
+    for (let i = 0; i < images.length; i++) {
+      const u = images[i]?.imageUrl;
+      if (typeof u === 'string' && !m.has(u)) m.set(u, i);
+    }
+    return m;
+  }, [images]);
+
+  /** @param {string} imageUrl */
+  const openModalForUrl = (imageUrl) => {
+    const idx = imageIndexByUrl.get(imageUrl) ?? 0;
+    setModalIndex(idx);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => setModalOpen(false);
+
+  useEffect(() => {
+    if (!modalOpen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeBtnRef.current?.focus();
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') closeModal();
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [modalOpen]);
+
   const seedString = `${layoutShuffleSeed ?? ''}\n${heading}\n${images.map((i) => i?.imageUrl ?? '').join('\0')}`;
   const baseSeed = hashString(seedString);
 
@@ -250,12 +327,74 @@ export function Lookbook({lookbook, layoutShuffleSeed}) {
                     ),
                     heading,
                     slideIndex === 0,
+                    openModalForUrl,
                   )
-                : renderGridSlide(slide, heading, slideIndex === 0)}
+                : renderGridSlide(
+                    slide,
+                    heading,
+                    slideIndex === 0,
+                    openModalForUrl,
+                  )}
             </SwiperSlide>
           );
         })}
       </Swiper>
+
+      {modalOpen ? (
+        <div
+          className="lookbook-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${heading} image viewer`}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal();
+          }}
+        >
+          <div className="lookbook-modal__panel">
+            <button
+              ref={closeBtnRef}
+              type="button"
+              className="lookbook-modal__close"
+              onClick={closeModal}
+              aria-label="Close"
+            >
+              ×
+            </button>
+
+            <Swiper
+              className="lookbook-modal__swiper"
+              modules={[A11y, Keyboard, Navigation, Pagination]}
+              spaceBetween={16}
+              slidesPerView={1}
+              initialSlide={modalIndex}
+              navigation
+              pagination={{clickable: true}}
+              keyboard={{enabled: true}}
+              a11y={{
+                enabled: true,
+                prevSlideMessage: 'Previous image',
+                nextSlideMessage: 'Next image',
+                paginationBulletMessage: 'Go to image {{index}}',
+              }}
+              onSlideChange={(swiper) => setModalIndex(swiper.activeIndex)}
+            >
+              {images.map((img) => (
+                <SwiperSlide key={img.imageUrl}>
+                  <div className="lookbook-modal__slide">
+                    <img
+                      className="lookbook-modal__img"
+                      src={img.imageUrl}
+                      alt={img.alt ?? heading}
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+      ) : null}
 
       {lookbook?.cta?.text && lookbook?.cta?.url ? (
         <div className="lookbook__cta-wrap">

@@ -41,6 +41,7 @@ export function Aside({children, heading, type}) {
     <div
       aria-modal
       className={`overlay ${expanded ? 'expanded' : ''}`}
+      data-aside-type={type}
       role="dialog"
       aria-labelledby={id}
     >
@@ -62,6 +63,20 @@ const AsideContext = createContext(null);
 
 Aside.Provider = function AsideProvider({children}) {
   const [type, setType] = useState('closed');
+
+  useEffect(() => {
+    if (type === 'closed') {
+      document.body.classList.remove('no-scroll');
+    } else {
+      document.body.classList.add('no-scroll');
+    }
+  }, [type]);
+
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('no-scroll');
+    };
+  }, []);
 
   return (
     <AsideContext.Provider

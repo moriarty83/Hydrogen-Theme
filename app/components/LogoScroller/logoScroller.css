@@ -23,14 +23,13 @@
 
 .logo-scroller__item {
   align-items: center;
-  background: #fff;
-  border-radius: 4px;
   display: flex;
   flex-direction: column;
   flex: 0 0 auto;
   height: auto;
   justify-content: center;
   min-width: 9.5rem;
+  max-width: 14rem;
   padding: 0.75rem 1rem;
 }
 
@@ -71,4 +70,3 @@
     min-width: 12rem;
   }
 }
-

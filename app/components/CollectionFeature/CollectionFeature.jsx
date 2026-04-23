@@ -34,6 +34,10 @@ export function CollectionFeature({
   const handle =
     typeof collectionHandle === 'string' ? collectionHandle.trim() : '';
 
+  const navId = useId().replace(/:/g, '');
+  const prevNavId = `cf-nav-prev-${navId}`;
+  const nextNavId = `cf-nav-next-${navId}`;
+
   useEffect(() => {
     if (serverData != null || !handle) return;
     const qs = new URLSearchParams({handle});
@@ -43,7 +47,11 @@ export function CollectionFeature({
 
   const payload = serverData ?? fetcher.data;
   const collection = payload?.collection;
-  const products = payload?.products ?? [];
+  const products = payload?.products;
+
+  if (collection == null || products == null) return null;
+
+  if (products.length === 0) return null;
 
   const loading =
     serverData == null && fetcher.state === 'loading' && !fetcher.data;
@@ -59,10 +67,6 @@ export function CollectionFeature({
     handle ??
     'section'
   ).replace(/[^a-zA-Z0-9_-]/g, '-')}`;
-
-  const navId = useId().replace(/:/g, '');
-  const prevNavId = `cf-nav-prev-${navId}`;
-  const nextNavId = `cf-nav-next-${navId}`;
 
   return (
     <div className="collection-feature-block">
@@ -100,93 +104,90 @@ export function CollectionFeature({
           )}
         </div>
 
-        <div className="collection-feature__content">
-          <p className="collection-feature__subheading">{subheading}</p>
-          {collection ? (
-            <h2 id={headingId} className="collection-feature__title">
-              <Link
-                className="collection-feature__title-link"
-                to={collectionUrl}
-              >
-                {loading ? '…' : title}
-              </Link>
-            </h2>
-          ) : (
-            <h2 id={headingId} className="collection-feature__title">
-              Collection
-            </h2>
-          )}
+        <div className="collection-feature__aside">
+          <div className="collection-feature__heading-group">
+            <p className="collection-feature__subheading">{subheading}</p>
+            {collection ? (
+              <h2 id={headingId} className="collection-feature__title">
+                <Link
+                  className="collection-feature__title-link"
+                  to={collectionUrl}
+                >
+                  {loading ? '…' : title}
+                </Link>
+              </h2>
+            ) : (
+              <h2 id={headingId} className="collection-feature__title">
+                Collection
+              </h2>
+            )}
+          </div>
 
-          {loading ? (
-            <p className="collection-feature__loading">Loading products…</p>
-          ) : null}
+          <div className="collection-feature__content">
+            {loading ? (
+              <p className="collection-feature__loading">Loading products…</p>
+            ) : null}
 
-          {!loading && collection && products.length === 0 ? (
-            <p className="collection-feature__empty">
-              No products in this collection.
-            </p>
-          ) : null}
+            {collection ? (
+              <div className="collection-feature__carousel">
+                <button
+                  type="button"
+                  id={prevNavId}
+                  className="swiper-button-prev"
+                  aria-label="Previous products"
+                />
+                <button
+                  type="button"
+                  id={nextNavId}
+                  className="swiper-button-next"
+                  aria-label="Next products"
+                />
+                <Swiper
+                  className="collection-feature__swiper"
+                  modules={[A11y, Navigation, Pagination]}
+                  spaceBetween={16}
+                  slidesPerView={1}
+                  loop={products.length > 1}
+                  navigation={{
+                    prevEl: `#${prevNavId}`,
+                    nextEl: `#${nextNavId}`,
+                  }}
+                  pagination={{clickable: true}}
+                  breakpoints={{
+                    480: {slidesPerView: 1, spaceBetween: 16},
+                    720: {slidesPerView: 1, spaceBetween: 16},
+                    960: {slidesPerView: 1, spaceBetween: 16},
+                  }}
+                  a11y={{
+                    prevSlideMessage: 'Previous products',
+                    nextSlideMessage: 'Next products',
+                    paginationBulletMessage: 'Go to slide {{index}}',
+                  }}
+                >
+                  {products.map((product, index) => (
+                    <SwiperSlide key={product.id}>
+                      <ProductItem
+                        product={product}
+                        preserveImageAspectRatio
+                        imageContainerClassName="collection-feature__product-image"
+                        loading={index < 2 ? 'eager' : undefined}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+            ) : null}
 
-          {collection && products.length > 0 ? (
-            <div className="collection-feature__carousel">
-              <button
-                type="button"
-                id={prevNavId}
-                className="swiper-button-prev"
-                aria-label="Previous products"
-              />
-              <button
-                type="button"
-                id={nextNavId}
-                className="swiper-button-next"
-                aria-label="Next products"
-              />
-              <Swiper
-                className="collection-feature__swiper"
-                modules={[A11y, Navigation, Pagination]}
-                autoHeight
-                spaceBetween={16}
-                slidesPerView={1}
-                loop={products.length > 1}
-                navigation={{
-                  prevEl: `#${prevNavId}`,
-                  nextEl: `#${nextNavId}`,
-                }}
-                pagination={{clickable: true}}
-                breakpoints={{
-                  480: {slidesPerView: 1, spaceBetween: 16},
-                  720: {slidesPerView: 1, spaceBetween: 16},
-                  960: {slidesPerView: 1, spaceBetween: 16},
-                }}
-                a11y={{
-                  prevSlideMessage: 'Previous products',
-                  nextSlideMessage: 'Next products',
-                  paginationBulletMessage: 'Go to slide {{index}}',
-                }}
-              >
-                {products.map((product, index) => (
-                  <SwiperSlide key={product.id}>
-                    <ProductItem
-                      product={product}
-                      preserveImageAspectRatio
-                      imageContainerClassName="collection-feature__product-image"
-                      loading={index < 2 ? 'eager' : undefined}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          ) : null}
-
-          {!collection && !loading ? (
-            <p className="collection-feature__empty">
-              {handle && !settled
-                ? 'Loading collection…'
-                : !handle
-                  ? 'Connect a primary collection on this product to show items here.'
-                  : 'No collection found for that handle.'}
-            </p>
-          ) : null}
+            {!collection && !loading ? (
+              <p className="collection-feature__empty">
+                {handle && !settled
+                  ? 'Loading collection…'
+                  : !handle
+                    ? 'Connect a primary collection on this product to show items here.'
+                    : 'No collection found for that handle.'}
+              </p>
+            ) : null}
+          </div>
         </div>
       </section>
     </div>

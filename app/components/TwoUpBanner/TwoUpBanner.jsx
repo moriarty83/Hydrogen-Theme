@@ -130,7 +130,7 @@ export function TwoUpBanner({twoUpBanner}) {
 
           <div className="two-up-banner__content">
             {item.title ? (
-              <h3 className="two-up-banner__title">{item.title}</h3>
+              <h2 className="two-up-banner__title">{item.title}</h2>
             ) : null}
             {item.subtitle ? (
               <p className="two-up-banner__subtitle">{item.subtitle}</p>

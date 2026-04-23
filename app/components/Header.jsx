@@ -2,6 +2,11 @@ import {Suspense} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
 import {useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
+import {SearchForm} from '~/components/SearchForm';
+import accountIcon from '~/assets/header/account-icon.svg';
+import searchIcon from '~/assets/header/search-icon.svg';
+import cartIcon from '~/assets/header/cart-icon.svg';
+import menuIcon from '~/assets/header/menu-icon.svg';
 
 /**
  * @param {HeaderProps}
@@ -20,7 +25,7 @@ export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
         primaryDomainUrl={header.shop.primaryDomain.url}
         publicStoreDomain={publicStoreDomain}
       />
-      <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
+      <HeaderCtas cart={cart} />
     </header>
   );
 }
@@ -45,15 +50,23 @@ export function HeaderMenu({
   return (
     <nav className={className} role="navigation">
       {viewport === 'mobile' && (
-        <NavLink
-          className="header-menu-item"
-          end
-          onClick={close}
-          prefetch="intent"
-          to="/"
-        >
-          Home
-        </NavLink>
+        <>
+          <div className="header-menu-search">
+            <SearchForm onSubmit={close}>
+              {({inputRef}) => (
+                <>
+                  <input
+                    name="q"
+                    placeholder="Search…"
+                    ref={inputRef}
+                    type="search"
+                  />
+                  <button type="submit">Search</button>
+                </>
+              )}
+            </SearchForm>
+          </div>
+        </>
       )}
       {(menu || FALLBACK_HEADER_MENU).items.map((item) => {
         if (!item.url) return null;
@@ -78,23 +91,40 @@ export function HeaderMenu({
           </NavLink>
         );
       })}
+      {viewport === 'mobile' ? (
+        <>
+          <div className="header-menu-divider" aria-hidden="true" />
+          <NavLink
+            className="header-menu-item header-menu-accountLink"
+            onClick={close}
+            prefetch="intent"
+            to="/account"
+          >
+            Account
+          </NavLink>
+        </>
+      ) : null}
     </nav>
   );
 }
 
 /**
- * @param {Pick<HeaderProps, 'isLoggedIn' | 'cart'>}
+ * @param {Pick<HeaderProps, 'cart'>}
  */
-function HeaderCtas({isLoggedIn, cart}) {
+function HeaderCtas({cart}) {
   return (
     <nav className="header-ctas" role="navigation">
       <HeaderMenuMobileToggle />
-      <NavLink className="header-cta-link" prefetch="intent" to="/account">
-        <Suspense fallback="Sign in">
-          <Await resolve={isLoggedIn} errorElement="Sign in">
-            {(isLoggedIn) => (isLoggedIn ? 'Account' : 'Sign in')}
-          </Await>
-        </Suspense>
+      <NavLink
+        aria-label="Account"
+        className="header-cta-link header-cta-iconLink header-cta--desktopOnly"
+        prefetch="intent"
+        to="/account"
+      >
+        <span className="header-cta-iconWrap" aria-hidden="true">
+          <img className="header-cta-icon" src={accountIcon} alt="" />
+        </span>
+        <span className="header-cta-label">Account</span>
       </NavLink>
       <SearchToggle />
       <CartToggle cart={cart} />
@@ -103,13 +133,20 @@ function HeaderCtas({isLoggedIn, cart}) {
 }
 
 function HeaderMenuMobileToggle() {
-  const {open} = useAside();
+  const {open, close, type} = useAside();
+  const isOpen = type === 'mobile';
   return (
     <button
-      className="header-menu-mobile-toggle reset"
-      onClick={() => open('mobile')}
+      aria-expanded={isOpen}
+      aria-label={isOpen ? 'Close menu' : 'Open menu'}
+      className={`header-menu-mobile-toggle header-cta--menu reset${
+        isOpen ? ' is-active' : ''
+      }`}
+      onClick={() => (isOpen ? close() : open('mobile'))}
     >
-      <span aria-hidden>☰</span>
+      <span className="header-cta-iconWrap" aria-hidden="true">
+        <img className="header-cta-icon" src={menuIcon} alt="" />
+      </span>
     </button>
   );
 }
@@ -118,11 +155,15 @@ function SearchToggle() {
   const {open} = useAside();
   return (
     <button
-      className="header-cta-link reset"
+      aria-label="Search"
+      className="header-cta-link header-cta-iconLink header-cta--desktopOnly reset"
       type="button"
       onClick={() => open('search')}
     >
-      Search
+      <span className="header-cta-iconWrap" aria-hidden="true">
+        <img className="header-cta-icon" src={searchIcon} alt="" />
+      </span>
+      <span className="header-cta-label">Search</span>
     </button>
   );
 }
@@ -136,7 +177,8 @@ function CartBadge({count}) {
 
   return (
     <a
-      className="header-cta-link"
+      aria-label={`Cart (items: ${count})`}
+      className="header-cta-link header-cta-iconLink header-cta--cart"
       href="/cart"
       onClick={(e) => {
         e.preventDefault();
@@ -149,7 +191,15 @@ function CartBadge({count}) {
         });
       }}
     >
-      Cart <span aria-label={`(items: ${count})`}>{count}</span>
+      <span className="header-cta-iconWrap" aria-hidden="true">
+        <img className="header-cta-icon" src={cartIcon} alt="" />
+        {count > 0 ? (
+          <span className="header-cta-badge" aria-hidden="true">
+            {count}
+          </span>
+        ) : null}
+      </span>
+      <span className="header-cta-label">Cart</span>
     </a>
   );
 }

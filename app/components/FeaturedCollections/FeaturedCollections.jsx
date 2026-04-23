@@ -65,9 +65,15 @@ export function FeaturedCollections({collections}) {
     <section
       ref={rootRef}
       className="featured-collections"
-      aria-label="Featured collections"
+      aria-labelledby="featured-collections-heading"
       aria-roledescription="carousel"
     >
+      <h2
+        id="featured-collections-heading"
+        className="featured-collections__heading"
+      >
+        Featured Collections
+      </h2>
       <Swiper
         className="featured-collections__swiper"
         modules={[A11y, Navigation, Pagination]}
